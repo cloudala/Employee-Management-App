@@ -3,6 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean id="president" class="org.example.springbootapp.domain.Person">
+        <constructor-arg name="id" value="1" />
         <constructor-arg name="firstName" value="Chrystal" />
         <constructor-arg name="lastName" value="Havoc" />
         <constructor-arg name="email" value="chavocr@yahoo.com" />
@@ -10,6 +11,7 @@
     </bean>
 
     <bean id="vicePresident" class="org.example.springbootapp.domain.Person">
+        <constructor-arg name="id" value="2" />
         <constructor-arg name="firstName" value="Halley" />
         <constructor-arg name="lastName" value="Gadaud" />
         <constructor-arg name="email" value="hgadaud9@sohu.com" />
@@ -17,6 +19,7 @@
     </bean>
 
     <bean id="secretary" class="org.example.springbootapp.domain.Person">
+        <constructor-arg name="id" value="3" />
         <constructor-arg name="firstName" value="Kirbie" />
         <constructor-arg name="lastName" value="Wrettum" />
         <constructor-arg name="email" value="kwrettumj@slideshare.net" />

@@ -6,17 +6,23 @@ public class Person {
     private String lastName;
     private String email;
     private String company;
+    private Double salary;
+    private String currency;
+    private String country;
 
     public Person() {
         System.out.println("Creating person " + this);
     }
 
-    public Person(int id, String firstName, String lastName, String email, String company) {
+    public Person(int id, String firstName, String lastName, String email, String company, Double salary, String currency, String country) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.company = company;
+        this.salary = salary;
+        this.currency = currency;
+        this.country = country;
         System.out.println("Creating person " + this);
     }
 
@@ -60,6 +66,30 @@ public class Person {
         this.company = company;
     }
 
+    public Double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -68,6 +98,9 @@ public class Person {
                 ", lastName=" + lastName +
                 ", email=" + email +
                 ", company=" + company +
+                ", salary=" + salary +
+                ", currency=" + currency +
+                ", country=" + country +
                 '}';
     }
 }

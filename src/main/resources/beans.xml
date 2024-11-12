@@ -8,6 +8,9 @@
         <constructor-arg name="lastName" value="Havoc" />
         <constructor-arg name="email" value="chavocr@yahoo.com" />
         <constructor-arg name="company" value="Mymm" />
+        <constructor-arg name="salary" value="1000000" />
+        <constructor-arg name="currency" value="$" />
+        <constructor-arg name="country" value="Dominican Republic" />
     </bean>
 
     <bean id="vicePresident" class="org.example.springbootapp.domain.Person">
@@ -16,6 +19,9 @@
         <constructor-arg name="lastName" value="Gadaud" />
         <constructor-arg name="email" value="hgadaud9@sohu.com" />
         <constructor-arg name="company" value="Oyope" />
+        <constructor-arg name="salary" value="50000" />
+        <constructor-arg name="currency" value="$" />
+        <constructor-arg name="country" value="Haiti" />
     </bean>
 
     <bean id="secretary" class="org.example.springbootapp.domain.Person">
@@ -24,5 +30,8 @@
         <constructor-arg name="lastName" value="Wrettum" />
         <constructor-arg name="email" value="kwrettumj@slideshare.net" />
         <constructor-arg name="company" value="Browsetype" />
+        <constructor-arg name="salary" value="20000" />
+        <constructor-arg name="currency" value="$" />
+        <constructor-arg name="country" value="Aruba" />
     </bean>
 </beans>

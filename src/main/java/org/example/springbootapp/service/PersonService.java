@@ -5,6 +5,7 @@ import org.example.springbootapp.domain.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -54,5 +55,17 @@ public class PersonService {
 
     public boolean deleteEmployee(int id) {
         return company.deleteEmployee(id);
+    }
+
+    public  List<String> getEmployeeCountries() {
+        return company.getEmployeeCountries();
+    }
+
+    public Map<String, Double> getCurrencySalaryPairs() {
+        return company.getCurrencySalaryPairs();
+    }
+
+    public List<Person> getEmployeesFromCountry(String country) {
+        return company.getEmployeesFromCountry(country);
     }
 }

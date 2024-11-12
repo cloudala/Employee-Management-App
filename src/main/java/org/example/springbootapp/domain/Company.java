@@ -3,10 +3,7 @@ package org.example.springbootapp.domain;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Company {
@@ -24,7 +21,10 @@ public class Company {
                     String lastName = data[1];
                     String email = data[2];
                     String company = extractCompanyFromEmail(email);
-                    Person employee = new Person(id, firstName, lastName, email, company);
+                    Double salary = Double.parseDouble(data[3]);
+                    String currency = data[4];
+                    String country = data[5];
+                    Person employee = new Person(id, firstName, lastName, email, company, salary, currency, country);
                     employees.add(employee);
                 }
                 id++;
@@ -83,6 +83,26 @@ public class Company {
     public List<Person> sortByLastName() {
         return employees.stream()
                 .sorted((p1, p2) -> p1.getLastName().compareToIgnoreCase(p2.getLastName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getEmployeeCountries() {
+        return employees.stream().map(Person::getCountry).distinct().sorted().collect(Collectors.toList());
+    }
+
+    public Map<String, Double> getCurrencySalaryPairs() {
+        Map<String, Double> currencySums = new HashMap<>();
+        List<AbstractMap.SimpleEntry<String, Double>> currencySalaryPairs =
+                employees.stream()
+                .map(person -> new AbstractMap.SimpleEntry<>(person.getCurrency(), person.getSalary()))
+                .collect(Collectors.toList());
+        currencySalaryPairs.forEach(pair -> currencySums.put(pair.getKey(), currencySums.getOrDefault(pair.getKey(), 0.0) + pair.getValue()));
+        return currencySums;
+    }
+
+    public List<Person> getEmployeesFromCountry(String country) {
+        return employees.stream().
+                filter(employee -> employee.getCountry().equalsIgnoreCase(country))
                 .collect(Collectors.toList());
     }
 }

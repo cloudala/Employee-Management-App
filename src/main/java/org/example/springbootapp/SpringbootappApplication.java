@@ -34,5 +34,7 @@ public class SpringbootappApplication {
 		System.out.println("\nEmployees sorted by last name:");
 		List<Person> sortedByLastName = personService.sortByLastName();
 		sortedByLastName.forEach(System.out::println);
+
+		System.out.println(personService.getCurrencySalaryPairs());
 	}
 }

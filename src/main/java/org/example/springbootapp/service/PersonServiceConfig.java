@@ -9,7 +9,7 @@ public class PersonServiceConfig {
 
     @Bean
     public Company company() {
-        String filePath = "MOCK_DATA.csv";
+        String filePath = "src/main/resources/MOCK_DATA.csv";
         return new Company(filePath);
     }
 }

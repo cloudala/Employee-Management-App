@@ -5,6 +5,61 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<!-- Success Message Modal -->
+<div th:if="${successMessage}" class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="successModalLabel">Success</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p th:text="${successMessage}"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Message Modal -->
+<div th:if="${errorMessage}" class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p th:text="${errorMessage}"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteConfirmationLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this employee?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Header Fragment -->
 <div th:replace="~{fragments/header :: header}"></div>
 
@@ -31,7 +86,7 @@
   <div class="dropdown mt-3 mb-3">
     <h5>Filter employees by country:</h5>
     <form action="/employees" method="get" class="d-flex align-items-center">
-      <select class="form-select me-2 w-25" name="country" id="employeeCountry" aria-label="country">
+      <select class="form-select me-2 w-25" name="filterCountry" id="filterCountry" aria-label="filterCountry">
         <option th:each="employeeCountry : ${employeeCountries}"
                 th:value="${employeeCountry}"
                 th:text="${employeeCountry}"
@@ -41,6 +96,78 @@
       <button type="submit" class="btn btn-primary me-2 px-3">Filter</button>
       <button type="button" class="btn btn-secondary px-3" onclick="clearFilter()">Show All</button>
     </form>
+  </div>
+
+  <!-- Employee form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 th:text="${employee.id != null} ? 'Update Employee' : 'Add New Employee'"></h5>
+    </div>
+    <div class="card-body">
+      <form th:action="${employee.id != null} ? '/employees/update/' + ${id} : '/employees/add'" th:object="${employee}" method="post">
+        <div class="mb-3">
+          <label for="firstName" class="form-label">First Name</label>
+          <input type="text" class="form-control" id="firstName" th:field="*{firstName}"
+                 th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+               th:errors="*{firstName}">Invalid name</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="lastName" class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="lastName" th:field="*{lastName}"
+                 th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+               th:errors="*{lastName}">Invalid last name</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="text" class="form-control" id="email" th:field="*{email}"
+                 th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+               th:errors="*{email}">Invalid email</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="company" class="form-label">Company</label>
+          <input type="text" class="form-control" id="company" th:field="*{company}"
+                 th:classappend="${#fields.hasErrors('company')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('company')}"
+               th:errors="*{company}">Invalid company</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="salary" class="form-label">Salary</label>
+          <input type="number" step="0.01" class="form-control" id="salary" th:field="*{salary}"
+                 th:classappend="${#fields.hasErrors('salary')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('salary')}"
+               th:errors="*{salary}">Invalid salary</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="currency" class="form-label">Currency</label>
+          <input type="text" class="form-control" id="currency" th:field="*{currency}"
+                 th:classappend="${#fields.hasErrors('currency')} ? 'is-invalid' : ''">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('currency')}"
+               th:errors="*{currency}">Invalid currency</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="employeeCountry" class="form-label">Country</label>
+          <select class="form-select" name="country" id="employeeCountry" th:field="*{country}">
+            <option th:each="employeeCountry : ${employeeCountries}"
+                    th:value="${employeeCountry}"
+                    th:text="${employeeCountry}">
+            </option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+                th:text="${employee.id != null} ? 'Update Employee' : 'Add Employee'"></button>
+        <button id="resetButton" type="reset" class="btn btn-secondary">Reset Form</button>
+      </form>
+    </div>
   </div>
 
   <!-- Employee Table -->
@@ -57,6 +184,7 @@
         <th>Salary</th>
         <th>Currency</th>
         <th>Country</th>
+        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
@@ -71,6 +199,22 @@
         <td th:text="${employee.salary}">Pensja</td>
         <td th:text="${employee.currency}">Waluta</td>
         <td th:text="${employee.country}">Kraj</td>
+        <td>
+          <div style="display: flex; gap: 10px">
+            <form th:action="@{/employees/edit/{id}(id=${employee.id})}"
+                  method="get" style="display: inline;">
+              <button type="submit" class="btn btn-warning">
+                Edit
+              </button>
+            </form>
+            <form th:action="@{/employees/delete/{id}(id=${employee.id})}" method="post" id="deleteEmployeeForm">
+              <button type="button" class="btn btn-danger"
+                      th:onclick="'javascript:openDeleteModal(\'' + ${employee.id} + '\');'">
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
       </tr>
       </tbody>
     </table>
@@ -88,6 +232,39 @@
   function clearFilter() {
     window.location.href = '/employees';
   }
+
+  function openDeleteModal(employeeId) {
+    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
+    // Dynamically set the action URL of the form
+    deleteEmployeeForm.action = `/employees/delete/${employeeId}`;
+
+    // Show the delete confirmation modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    deleteModal.show();
+
+    // Add a one-time event listener to the modal's delete button to submit the form
+    const deleteButton = document.querySelector('#deleteConfirmationModal .btn-danger');
+    deleteButton.onclick = () => deleteEmployeeForm.submit();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+      const modal = new bootstrap.Modal(successModal);
+      modal.show();
+    }
+
+    const errorModal = document.getElementById('errorModal');
+    if (errorModal) {
+      const modal = new bootstrap.Modal(errorModal);
+      modal.show();
+    }
+  });
+
+  document.getElementById("resetButton").addEventListener("click", function (event) {
+    event.preventDefault();
+    window.location.href = '/employees';
+  });
 </script>
 </body>
 </html>

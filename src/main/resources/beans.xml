@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean id="president" class="org.example.springbootapp.domain.Person">
+    <bean id="president" class="org.example.springbootapp.domain.entity.Person">
         <constructor-arg name="id" value="1" />
         <constructor-arg name="firstName" value="Chrystal" />
         <constructor-arg name="lastName" value="Havoc" />
@@ -13,7 +13,7 @@
         <constructor-arg name="country" value="Dominican Republic" />
     </bean>
 
-    <bean id="vicePresident" class="org.example.springbootapp.domain.Person">
+    <bean id="vicePresident" class="org.example.springbootapp.domain.entity.Person">
         <constructor-arg name="id" value="2" />
         <constructor-arg name="firstName" value="Halley" />
         <constructor-arg name="lastName" value="Gadaud" />
@@ -24,7 +24,7 @@
         <constructor-arg name="country" value="Haiti" />
     </bean>
 
-    <bean id="secretary" class="org.example.springbootapp.domain.Person">
+    <bean id="secretary" class="org.example.springbootapp.domain.entity.Person">
         <constructor-arg name="id" value="3" />
         <constructor-arg name="firstName" value="Kirbie" />
         <constructor-arg name="lastName" value="Wrettum" />

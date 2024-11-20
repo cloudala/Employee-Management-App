@@ -1,6 +1,6 @@
 package org.example.springbootapp;
 
-import org.example.springbootapp.domain.Person;
+import org.example.springbootapp.domain.entity.Person;
 import org.example.springbootapp.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

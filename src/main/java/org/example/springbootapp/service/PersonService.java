@@ -1,9 +1,11 @@
 package org.example.springbootapp.service;
 
 import org.example.springbootapp.domain.Company;
-import org.example.springbootapp.domain.Person;
+import org.example.springbootapp.domain.entity.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,12 +59,20 @@ public class PersonService {
         return company.deleteEmployee(id);
     }
 
+    public boolean existsByEmail(String email) {
+        return company.existsByEmail(email);
+    }
+
     public  List<String> getEmployeeCountries() {
         return company.getEmployeeCountries();
     }
 
-    public Map<String, Double> getCurrencySalaryPairs() {
+    public Map<String, BigDecimal> getCurrencySalaryPairs() {
         return company.getCurrencySalaryPairs();
+    }
+
+    public BigDecimal getTotalSalaryByCurrency(String currency) {
+        return company.getTotalSalaryByCurrency(currency);
     }
 
     public List<Person> getEmployeesFromCountry(String country) {

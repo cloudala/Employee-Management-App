@@ -1,10 +1,12 @@
 package org.example.springbootapp.domain;
 
+import org.example.springbootapp.domain.entity.Person;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 public class Company {
     private List<Person> employees = new ArrayList<>();
@@ -21,7 +23,7 @@ public class Company {
                     String lastName = data[1];
                     String email = data[2];
                     String company = extractCompanyFromEmail(email);
-                    Double salary = Double.parseDouble(data[3]);
+                    BigDecimal salary = new BigDecimal(data[3]);
                     String currency = data[4];
                     String country = data[5];
                     Person employee = new Person(id, firstName, lastName, email, company, salary, currency, country);
@@ -50,6 +52,7 @@ public class Company {
 
     public Person addEmployee(Person newEmployee) {
         newEmployee.setId(employees.size() + 1);
+        newEmployee.setCurrency(newEmployee.getCurrency().toUpperCase());
         employees.add(newEmployee);
         return newEmployee;
     }
@@ -63,6 +66,9 @@ public class Company {
             person.setLastName(newEmployee.getLastName());
             person.setEmail(newEmployee.getEmail());
             person.setCompany(newEmployee.getCompany());
+            person.setSalary(newEmployee.getSalary());
+            person.setCurrency(newEmployee.getCurrency().toUpperCase());
+            person.setCountry(newEmployee.getCountry());
             return person;
         } else {
             throw new NoSuchElementException("Person not found with ID: " + id);
@@ -72,6 +78,10 @@ public class Company {
 
     public boolean deleteEmployee(int id) {
         return employees.removeIf(e -> e.getId() == id);
+    }
+
+    public boolean existsByEmail(String email) {
+        return employees.stream().anyMatch(employee -> employee.getEmail().equals(email));
     }
 
     public List<Person> filterByCompany(String company) {
@@ -90,14 +100,25 @@ public class Company {
         return employees.stream().map(Person::getCountry).distinct().sorted().collect(Collectors.toList());
     }
 
-    public Map<String, Double> getCurrencySalaryPairs() {
-        Map<String, Double> currencySums = new HashMap<>();
-        List<AbstractMap.SimpleEntry<String, Double>> currencySalaryPairs =
+    public Map<String, BigDecimal> getCurrencySalaryPairs() {
+        Map<String, BigDecimal> currencySums = new HashMap<>();
+        List<AbstractMap.SimpleEntry<String, BigDecimal>> currencySalaryPairs =
                 employees.stream()
-                .map(person -> new AbstractMap.SimpleEntry<>(person.getCurrency(), person.getSalary()))
-                .collect(Collectors.toList());
-        currencySalaryPairs.forEach(pair -> currencySums.put(pair.getKey(), currencySums.getOrDefault(pair.getKey(), 0.0) + pair.getValue()));
+                        .map(person -> new AbstractMap.SimpleEntry<>(person.getCurrency(), person.getSalary()))
+                        .collect(Collectors.toList());
+
+        currencySalaryPairs.forEach(pair ->
+                currencySums.put(pair.getKey(),
+                        currencySums.getOrDefault(pair.getKey(), BigDecimal.ZERO).add(pair.getValue()))
+        );
+
         return currencySums;
+    }
+
+    public BigDecimal getTotalSalaryByCurrency(String currency) {
+        return employees.stream().filter(employee -> employee.getCurrency()
+                .equalsIgnoreCase(currency)).map(Person::getSalary)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public List<Person> getEmployeesFromCountry(String country) {

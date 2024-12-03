@@ -1,45 +1,177 @@
 package org.example.springbootapp.domain;
 
+import org.example.springbootapp.util.CsvValidationResult;
 import org.example.springbootapp.domain.entity.Person;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVFormat;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
+import org.example.springbootapp.util.PersonValidator;
 
 public class Company {
     private List<Person> employees = new ArrayList<>();
+    List<String> validationErrors = new ArrayList<>();
 
     public Company(String filePath) {
+        loadEmployeesFromCSVWithValidation(filePath);
+    }
+
+    public List<String> getValidationErrors() {
+        return validationErrors;
+    }
+
+    public List<Person> loadEmployeesFromCSV(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             // Omit the header
             String line = br.readLine();
             int id = 1;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 6) {
-                    String firstName = data[0];
-                    String lastName = data[1];
-                    String email = data[2];
-                    String company = extractCompanyFromEmail(email);
-                    BigDecimal salary = new BigDecimal(data[3]);
-                    String currency = data[4];
-                    String country = data[5];
-                    Person employee = new Person(id, firstName, lastName, email, company, salary, currency, country);
-                    employees.add(employee);
+                if (data.length < 6) {
+                    throw new IllegalArgumentException("Invalid row format: " + line);
                 }
+                String firstName = data[0];
+                String lastName = data[1];
+                String imagePath = (data.length > 6 && !data[6].isEmpty()) ? data[6] : "";
+                String email = data[2];
+                String company = extractCompanyFromEmail(email);
+                BigDecimal salary = new BigDecimal(data[3]);
+                String currency = data[4];
+                String country = data[5];
+                Person employee = new Person(id, firstName, lastName, email, company, salary, currency, country, imagePath);
+                employees.add(employee);
                 id++;
             }
+            return employees;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String extractCompanyFromEmail(String email) {
-        String domain = email.split("@")[1];
-        String company = domain.split("\\.")[0];
-        return company.substring(0, 1).toUpperCase() + company.substring(1).toLowerCase();
+    public List<Person> loadEmployeesFromCSVWithValidation(String filePath) {
+        List<String> currentValidationErrors = new ArrayList<>();
+        List<Person> newEmployees = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            // Omit the header
+            String line = br.readLine();
+            int id = 0;
+
+            while ((line = br.readLine()) != null) {
+                id++; // Increment the row number for error messages
+                String[] data = line.split(",");
+                System.out.println("Row " + id + " data: " + Arrays.toString(data));
+
+                if (data.length < 6) {
+                    currentValidationErrors.add("Row " + id + ": Invalid column format, expected at least 6 columns but got " + data.length);
+                    continue; // Skip invalid rows
+                }
+
+                try {
+                    String firstName = data[0];
+                    String lastName = data[1];
+                    String imagePath = (data.length > 6 && !data[6].isEmpty()) ? data[6] : "";
+                    String email = data[2];
+                    String company = extractCompanyFromEmail(email);
+                    BigDecimal salary = new BigDecimal(data[3]);
+                    String currency = data[4];
+                    String country = data[5];
+
+                    Person employee = new Person(id, firstName, lastName, email, company, salary, currency, country, imagePath);
+
+                    // Validate the employee using the Validator
+                    List<String> errors = PersonValidator.validate(employee, id);
+
+                    if (!errors.isEmpty()) {
+                        String errorMessage = String.join("; ", errors);
+                        currentValidationErrors.add(errorMessage);
+                    } else {
+                        newEmployees.add(employee); // Only add valid employees
+                    }
+                } catch (Exception e) {
+                    currentValidationErrors.add("Row " + id + ": Error processing row: " + e.getMessage());
+                }
+            }
+
+            if (currentValidationErrors.isEmpty()) {
+                employees = newEmployees;
+            } else {
+                validationErrors = currentValidationErrors;
+                System.out.println("Some data in the file was invalid, employee import failed.");
+                printValidationResults(validationErrors);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading the CSV file: " + e.getMessage(), e);
+        }
+
+        return employees;
+    }
+
+    private void printValidationResults(List<String> validationResults) {
+        System.out.println("Validation Errors:");
+        for (String result : validationResults) {
+            System.out.println(result);
+        }
+    }
+
+    public String collectValidationResults(List<String> validationResults) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Validation Errors:\n");
+        for (String result : validationResults) {
+            builder.append(result).append("\n");
+        }
+        return builder.toString();
+    }
+
+    public void reloadEmployeesFromCSV(String filePath) {
+        this.employees.clear();
+        this.employees = loadEmployeesFromCSVWithValidation(filePath);
+    }
+
+    public static String extractCompanyFromEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return "Unknown"; // Return a default or error value
+        }
+
+        String[] splitEmail = email.split("@");
+        if (splitEmail.length < 2) {
+            return "Unknown"; // Handle malformed email
+        }
+
+        String domain = splitEmail[1];
+        return domain.contains(".") ? domain.substring(0, domain.indexOf('.')) : domain;
+    }
+
+    public String exportEmployeesToCSV(List<String> columns) throws IOException {
+        StringWriter stringWriter = new StringWriter();
+        CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.DEFAULT);
+
+        // Add column names as the first row
+        csvPrinter.printRecord(columns);
+        for (Person employee : employees) {
+            List<String> row = new ArrayList<>();
+            for (String column : columns) {
+                switch (column.toLowerCase()) {
+                    case "first_name" -> row.add(employee.getFirstName());
+                    case "last_name" -> row.add(employee.getLastName());
+                    case "email" -> row.add(employee.getEmail());
+                    case "company" -> row.add(employee.getCompany());
+                    case "salary" -> row.add(employee.getSalary().toString());
+                    case "currency" -> row.add(employee.getCurrency());
+                    case "country" -> row.add(employee.getCountry());
+                    case "image_path" -> row.add(employee.getImagePath());
+                    default -> throw new IllegalArgumentException("Invalid column: " + column);
+                }
+            }
+            csvPrinter.printRecord(row);
+        }
+        csvPrinter.flush();
+        return stringWriter.toString();
     }
 
     public List<Person> getAllEmployees() {
@@ -69,6 +201,7 @@ public class Company {
             person.setSalary(newEmployee.getSalary());
             person.setCurrency(newEmployee.getCurrency().toUpperCase());
             person.setCountry(newEmployee.getCountry());
+            person.setImagePath(newEmployee.getImagePath());
             return person;
         } else {
             throw new NoSuchElementException("Person not found with ID: " + id);
@@ -126,4 +259,5 @@ public class Company {
                 filter(employee -> employee.getCountry().equalsIgnoreCase(country))
                 .collect(Collectors.toList());
     }
+
 }

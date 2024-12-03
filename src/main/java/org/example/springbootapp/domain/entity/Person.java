@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import org.example.springbootapp.annotation.CurrencyConstraint;
 import org.example.springbootapp.annotation.UniqueEmail;
 import org.example.springbootapp.validator.UpdateGroup;
-
 import java.math.BigDecimal;
 
 @Data
@@ -45,7 +44,7 @@ public class Person {
 
     @NotNull(groups = {AddGroup.class, UpdateGroup.class}, message = "Salary cannot be blank")
     @DecimalMin(groups = {AddGroup.class, UpdateGroup.class}, value = "0.01", message = "Salary must be positive")
-    @Digits(groups = {AddGroup.class, UpdateGroup.class}, integer = 9, fraction = 2, message = "Salary must be a number with up to 2 decimal places")
+    @Digits(groups = {AddGroup.class, UpdateGroup.class}, integer = 7, fraction = 2, message = "Salary must be a number with up to 2 decimal places")
     @DecimalMax(groups = {AddGroup.class, UpdateGroup.class}, value = "1000000", message = "Salary must not exceed 1,000,000")
     private BigDecimal salary;
 
@@ -55,4 +54,6 @@ public class Person {
 
     @NotBlank(groups = {AddGroup.class, UpdateGroup.class}, message = "Country cannot be blank")
     private String country;
+
+    private String imagePath;
 }

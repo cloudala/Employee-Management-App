@@ -64,6 +64,18 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-4">
+  <h2>Import your Employees</h2>
+  <form action="/employees/upload" method="post" enctype="multipart/form-data" class="d-flex align-items-end my-3">
+    <div>
+      <label for="csvFile" class="form-label">Select CSV Data File:</label>
+      <input class="form-control me-2 w-75" type="file" id="csvFile" name="csvFile" accept=".csv" required>
+    </div>
+    <div>
+      <label for="imageFiles" class="form-label">Add Employee Images:</label>
+      <input class="form-control me-2 w-75" type="file" id="imageFiles" name="imageFiles" accept=".jpg,.png" multiple required>
+    </div>
+    <button type="submit" class="btn btn-primary me-2 px-3">Import</button>
+  </form>
   <div class="alert alert-info">
     <h4>Employee Salary Summary</h4>
     <table class="table table-sm">
@@ -104,7 +116,7 @@
       <h5 th:text="${employee.id != null} ? 'Update Employee' : 'Add New Employee'"></h5>
     </div>
     <div class="card-body">
-      <form th:action="${employee.id != null} ? '/employees/update/' + ${id} : '/employees/add'" th:object="${employee}" method="post">
+      <form th:action="${employee.id != null} ? '/employees/update/' + ${id} : '/employees/add'" th:object="${employee}" method="post" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="firstName" class="form-label">First Name</label>
           <input type="text" class="form-control" id="firstName" th:field="*{firstName}"
@@ -163,6 +175,18 @@
           </select>
         </div>
 
+        <div class="mb-3">
+          <p>Current Photo:</p>
+          <div class="mb-2">
+            <img th:if="${employee.imagePath}"
+               th:src="@{/employees/image/{fileName}(fileName=${employee.imagePath})}"
+               alt="Employee Photo"
+               style="max-width: 200px;">
+          </div>
+          <label class="form-label">Photo</label>
+          <input type="file" class="form-control" name="image" accept="image/*">
+        </div>
+
         <button type="submit" class="btn btn-primary"
                 th:text="${employee.id != null} ? 'Update Employee' : 'Add Employee'"></button>
         <button id="resetButton" type="reset" class="btn btn-secondary">Reset Form</button>
@@ -171,14 +195,51 @@
   </div>
 
   <!-- Employee Table -->
-  <h2>List of Employees</h2>
-  <div th:if="${not #lists.isEmpty(employees)}">
+  <div class="d-flex justify-content-between align-items-end">
+    <h2>List of Employees</h2>
+    <div class="d-flex align-items-end gap-2">
+      <a th:href="@{/employees/images/zip}" class="btn btn-outline-primary">Export employee photos</a>
+      <form action="/employees/export/csv" method="post" class="d-flex flex-column align-items-start">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="first_name" id="firstNameExport">
+          <label class="form-check-label" for="firstNameExport">First Name</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="last_name" id="lastNameExport">
+          <label class="form-check-label" for="lastNameExport">Last Name</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="email" id="emailExport">
+          <label class="form-check-label" for="emailExport">Email</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="salary" id="salaryExport">
+          <label class="form-check-label" for="salaryExport">Salary</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="currency" id="currencyExport">
+          <label class="form-check-label" for="currencyExport">Currency</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="country" id="countryExport">
+          <label class="form-check-label" for="countryExport">Country</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" name="columns" value="image_path" id="imagePathExport">
+          <label class="form-check-label" for="imagePathExport">Image Path</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Export to CSV</button>
+      </form>
+    </div>
+  </div>
+    <div th:if="${not #lists.isEmpty(employees)}" class="table-responsive">
     <table class="table">
       <thead>
       <tr>
         <th>ID</th>
         <th>Name</th>
         <th>Surname</th>
+        <th>Photo</th>
         <th>Email</th>
         <th>Company</th>
         <th>Salary</th>
@@ -192,6 +253,13 @@
         <td th:text="${employee.id}">1</td>
         <td th:text="${employee.firstName}">Imię</td>
         <td th:text="${employee.lastName}">Nazwisko</td>
+        <td>
+          <a th:href="@{/employees/image/{fileName}(fileName=${employee.imagePath})}">
+            <img th:if="${employee.imagePath}"
+               th:src="@{/employees/image/{fileName}(fileName=${employee.imagePath})}"
+               style="max-width: 100px;" alt="Employee Image">
+          </a>
+        </td>
         <td>
           <a th:href="@{/employees/details/{id}(id=${employee.id})}" th:text="${employee.email}">Email</a>
         </td>

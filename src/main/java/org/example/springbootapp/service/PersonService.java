@@ -4,14 +4,19 @@ import org.example.springbootapp.domain.Company;
 import org.example.springbootapp.domain.entity.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class PersonService {
+    @Autowired
+    private FileService fileService;
+
     @Autowired
     private Person president;
 
@@ -23,6 +28,27 @@ public class PersonService {
 
     @Autowired
     private Company company;
+
+    public List<Person> loadEmployeesFromCsv(String filepath) {
+        return company.loadEmployeesFromCSV(filepath);
+    }
+
+    public List<Person> loadEmployeesFromCsvWithValidation(String filepath) {
+        return company.loadEmployeesFromCSVWithValidation(filepath);
+    }
+
+    public String collectValidationResults(List<String> validationResults) {
+        return company.collectValidationResults(validationResults);
+    }
+
+    public List<String> getValidationErrors() {
+        return company.getValidationErrors();
+    }
+
+    public void reloadEmployeesFromCsv(String fileName) {
+        String fullFilePath = fileService.getPathInUploadDir(fileName);
+        company.reloadEmployeesFromCSV(fullFilePath);
+    }
 
 
     public void displayKeyEmployees() {
@@ -52,11 +78,30 @@ public class PersonService {
     }
 
     public Person updateEmployee(int id, Person newEmployee) {
-        return company.updateEmployee(id, newEmployee);
+        Optional<Person> existingPerson = getEmployeeById(id);
+
+        if (existingPerson.isPresent()) {
+            String oldImagePath = existingPerson.get().getImagePath();
+            if (oldImagePath != null && !oldImagePath.isEmpty() &&
+                    !oldImagePath.equals(newEmployee.getImagePath())) {
+                fileService.deleteFile(oldImagePath);
+            }
+            return company.updateEmployee(id, newEmployee);
+        } else {
+            throw new NoSuchElementException("Person not found with ID: " + id);
+        }
     }
 
     public boolean deleteEmployee(int id) {
-        return company.deleteEmployee(id);
+        Optional<Person> employee = company.getEmployeeById(id);
+        if (employee.isPresent()) {
+            String imagePath = employee.get().getImagePath();
+            if (imagePath != null && !imagePath.isEmpty()) {
+                fileService.deleteFile(imagePath);
+            }
+            return company.deleteEmployee(id);
+        }
+        return false;
     }
 
     public boolean existsByEmail(String email) {
@@ -77,5 +122,13 @@ public class PersonService {
 
     public List<Person> getEmployeesFromCountry(String country) {
         return company.getEmployeesFromCountry(country);
+    }
+
+    public Path exportPhotosToZip() throws IOException {
+        return fileService.exportPhotosToZip("[id]_[surname].jpg", company.getAllEmployees());
+    }
+
+    public String exportEmployeesToCSV(List<String> columns) throws IOException {
+        return company.exportEmployeesToCSV(columns);
     }
 }

@@ -11,6 +11,7 @@
         <constructor-arg name="salary" value="1000000" />
         <constructor-arg name="currency" value="$" />
         <constructor-arg name="country" value="Dominican Republic" />
+        <constructor-arg name="imagePath" value="" />
     </bean>
 
     <bean id="vicePresident" class="org.example.springbootapp.domain.entity.Person">
@@ -22,6 +23,7 @@
         <constructor-arg name="salary" value="50000" />
         <constructor-arg name="currency" value="$" />
         <constructor-arg name="country" value="Haiti" />
+        <constructor-arg name="imagePath" value="" />
     </bean>
 
     <bean id="secretary" class="org.example.springbootapp.domain.entity.Person">
@@ -33,5 +35,6 @@
         <constructor-arg name="salary" value="20000" />
         <constructor-arg name="currency" value="$" />
         <constructor-arg name="country" value="Aruba" />
+        <constructor-arg name="imagePath" value="" />
     </bean>
 </beans>

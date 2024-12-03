@@ -8,6 +8,12 @@
 <!-- Header Fragment -->
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="container mt-4">
+    <div>
+        <img th:if="${employee.imagePath}"
+             th:src="@{/employees/image/{fileName}(fileName=${employee.imagePath})}"
+             alt="Employee Photo"
+             style="max-width: 200px;">
+    </div>
     <h2 th:text="${employee.firstName + ' ' + employee.lastName}">Employee name and surname</h2>
 
     <div class="card">
